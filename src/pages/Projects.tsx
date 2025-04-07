@@ -33,7 +33,7 @@ export default function Projects() {
         const repoResponse = await octokit.repos.listForUser({
           username: 'FlorentinHub',
           sort: 'updated',
-          per_page: 6
+          per_page: 24
         });
 
         // Fetch project details from Supabase
