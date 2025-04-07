@@ -161,13 +161,35 @@ export default function AdminPanel() {
             <div className="md:col-span-2 bg-white/5 p-6 rounded-lg backdrop-blur-sm">
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-2xl font-semibold">Edit Project Details</h2>
-                <button
-                  onClick={handleSave}
-                  className="flex items-center bg-primary text-white px-4 py-2 rounded hover:bg-primary/90"
-                >
-                  <Save className="w-5 h-5 mr-2" />
-                  Save Changes
-                </button>
+                <div className="flex gap-4">
+                  <button
+                    onClick={handleToggleVisibility}
+                    className={`flex items-center px-4 py-2 rounded ${
+                      editingDetails.isVisible
+                        ? 'bg-green-500 hover:bg-green-600'
+                        : 'bg-red-500 hover:bg-red-600'
+                    } text-white`}
+                  >
+                    {editingDetails.isVisible ? (
+                      <>
+                        <Eye className="w-5 h-5 mr-2" />
+                        Visible
+                      </>
+                    ) : (
+                      <>
+                        <EyeOff className="w-5 h-5 mr-2" />
+                        Hidden
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={handleSave}
+                    className="flex items-center bg-primary text-white px-4 py-2 rounded hover:bg-primary/90"
+                  >
+                    <Save className="w-5 h-5 mr-2" />
+                    Save Changes
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-6">
