@@ -18,6 +18,7 @@ interface ProjectDetails {
   repo_name: string;
   images: string[];
   languages: string[];
+  isVisible: boolean;
 }
 
 export default function Projects() {
@@ -39,7 +40,7 @@ export default function Projects() {
         // Fetch project details from Supabase
         const { data: details } = await supabase
           .from('project_details')
-          .select('*');
+          .select('*')
 
         const detailsMap = (details || []).reduce((acc: Record<string, ProjectDetails>, detail) => {
           acc[detail.repo_name] = detail;
@@ -74,13 +75,13 @@ export default function Projects() {
   };
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="container mx-auto px-4 py-12"
     >
       <div className="max-w-6xl mx-auto">
-        <motion.div 
+        <motion.div
           className="flex items-center justify-center mb-12"
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -95,23 +96,26 @@ export default function Projects() {
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
           </div>
         ) : (
-          <motion.div 
+          <motion.div
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
             variants={container}
             initial="hidden"
             animate="show"
           >
-            {repos.map((repo) => (
-              <motion.div
-                key={repo.name}
-                variants={item}
-              >
-                <ProjectCard
-                  repo={repo}
-                  projectDetails={projectDetails[repo.name]}
-                />
-              </motion.div>
-            ))}
+            {repos
+              .filter((repo) => {
+                const details = projectDetails[repo.name];
+                // Affiche si pas dans Supabase OU si isVisible est true
+                return !details || details.isVisible === true;
+              })
+              .map((repo) => (
+                <motion.div key={repo.name} variants={item}>
+                  <ProjectCard
+                    repo={repo}
+                    projectDetails={projectDetails[repo.name]}
+                  />
+                </motion.div>
+              ))}
           </motion.div>
         )}
       </div>
