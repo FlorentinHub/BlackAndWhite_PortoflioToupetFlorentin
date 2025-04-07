@@ -68,10 +68,10 @@ export default function ProjectDetails() {
       animate={{ opacity: 1 }}
       className="container mx-auto px-4 py-12"
     >
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto hover:text-black">
         <Link
           to="/projects"
-          className="inline-flex items-center text-gray-400 hover:text-white mb-8"
+          className="inline-flex items-center text-gray-400 hover:text-black mb-8"
         >
           <ArrowLeft className="w-5 h-5 mr-2" />
           Back to projects
