@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS project_details (
   repo_name text UNIQUE NOT NULL,
   images text[] DEFAULT '{}',
   languages text[] DEFAULT '{}',
+  isVisible boolean DEFAULT true,
   created_at timestamptz DEFAULT now(),
   updated_at timestamptz DEFAULT now()
 );
