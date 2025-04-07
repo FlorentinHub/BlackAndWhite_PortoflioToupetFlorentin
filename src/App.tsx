@@ -8,6 +8,7 @@ import ProjectDetails from './pages/ProjectDetails';
 import News from './pages/News';
 import Contact from './pages/Contact';
 import AdminPanel from './pages/AdminPanel';
+import ProtectedRoute from './components/ProtectedRoute';
 import { motion } from 'framer-motion';
 
 const queryClient = new QueryClient();
@@ -29,7 +30,11 @@ export default function App() {
               <Route path="/projects/:name" element={<ProjectDetails />} />
               <Route path="/news" element={<News />} />
               <Route path="/contact" element={<Contact />} />
-              <Route path="/admin" element={<AdminPanel />} />
+              <Route path="/admin" element={
+                <ProtectedRoute>
+                  <AdminPanel />
+                </ProtectedRoute>
+              } />
             </Routes>
           </motion.div>
         </div>
