@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Settings, Save, Plus, Trash2 } from 'lucide-react';
+import { Settings, Save, Plus, Trash2, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Octokit } from '@octokit/rest';
 
@@ -8,6 +8,7 @@ interface ProjectDetails {
   repo_name: string;
   images: string[];
   languages: string[];
+  isVisible: boolean;
 }
 
 export default function AdminPanel() {
@@ -54,7 +55,8 @@ export default function AdminPanel() {
     setEditingDetails(projectDetails[repoName] || {
       repo_name: repoName,
       images: [],
-      languages: []
+      languages: [],
+      isVisible: true
     });
   };
 
@@ -67,7 +69,8 @@ export default function AdminPanel() {
         .upsert({
           repo_name: editingDetails.repo_name,
           images: editingDetails.images,
-          languages: editingDetails.languages
+          languages: editingDetails.languages,
+          isVisible: editingDetails.isVisible
         });
 
       if (error) throw error;
@@ -79,6 +82,14 @@ export default function AdminPanel() {
     } catch (error) {
       console.error('Error saving project details:', error);
     }
+  };
+
+  const handleToggleVisibility = () => {
+    if (!editingDetails) return;
+    setEditingDetails({
+      ...editingDetails,
+      isVisible: !editingDetails.isVisible
+    });
   };
 
   const handleAddImage = () => {
@@ -151,7 +162,12 @@ export default function AdminPanel() {
                       : 'hover:bg-white/10'
                   }`}
                 >
-                  {repo.name}
+                  <div className="flex items-center justify-between">
+                    <span>{repo.name}</span>
+                    {projectDetails[repo.name]?.isVisible === false && (
+                      <EyeOff className="w-4 h-4 text-gray-400" />
+                    )}
+                  </div>
                 </button>
               ))}
             </div>
