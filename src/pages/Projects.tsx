@@ -26,11 +26,14 @@ export default function Projects() {
   const [projectDetails, setProjectDetails] = useState<Record<string, ProjectDetails>>({});
   const [loading, setLoading] = useState(true);
 
+  const octokit = new Octokit({
+    auth: import.meta.env.VITE_GITHUB_TOKEN,
+  });
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         // Fetch GitHub repos
-        const octokit = new Octokit();
         const repoResponse = await octokit.repos.listForUser({
           username: 'FlorentinHub',
           sort: 'updated',
@@ -40,7 +43,7 @@ export default function Projects() {
         // Fetch project details from Supabase
         const { data: details } = await supabase
           .from('project_details')
-          .select('*')
+          .select('*');
 
         const detailsMap = (details || []).reduce((acc: Record<string, ProjectDetails>, detail) => {
           acc[detail.repo_name] = detail;
@@ -58,6 +61,40 @@ export default function Projects() {
 
     fetchData();
   }, []);
+
+  // Enrichir avec les languages GitHub si pas déjà présent
+  useEffect(() => {
+    const enrichWithLanguages = async () => {
+      const updatedDetails = { ...projectDetails };
+
+      const missingRepos = repos.filter((repo) => !projectDetails[repo.name]);
+
+      const promises = missingRepos.map(async (repo) => {
+        try {
+          const { data } = await octokit.repos.listLanguages({
+            owner: 'FlorentinHub',
+            repo: repo.name
+          });
+
+          updatedDetails[repo.name] = {
+            repo_name: repo.name,
+            images: [],
+            languages: Object.keys(data),
+            isVisible: true
+          };
+        } catch (err) {
+          console.error(`Erreur de languages pour ${repo.name}`, err);
+        }
+      });
+
+      await Promise.all(promises);
+      setProjectDetails(updatedDetails);
+    };
+
+    if (repos.length > 0) {
+      enrichWithLanguages();
+    }
+  }, [repos]);
 
   const container = {
     hidden: { opacity: 0 },
@@ -105,7 +142,6 @@ export default function Projects() {
             {repos
               .filter((repo) => {
                 const details = projectDetails[repo.name];
-                // Affiche si pas dans Supabase OU si isVisible est true
                 return !details || details.isVisible === true;
               })
               .map((repo) => (
