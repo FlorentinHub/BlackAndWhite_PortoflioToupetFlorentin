@@ -5,6 +5,25 @@ import { ArrowLeft, Star, GitFork, Code } from 'lucide-react';
 import { Octokit } from '@octokit/rest';
 import { supabase } from '../lib/supabase';
 
+const languageIcons: Record<string, string> = {
+  JavaScript: 'devicon-javascript-plain',
+  TypeScript: 'devicon-typescript-plain',
+  Python: 'devicon-python-plain',
+  Java: 'devicon-java-plain',
+  Ruby: 'devicon-ruby-plain',
+  PHP: 'devicon-php-plain',
+  'C++': 'devicon-cplusplus-plain',
+  'C#': 'devicon-csharp-plain',
+  Go: 'devicon-go-plain',
+  Rust: 'devicon-rust-plain',
+  Swift: 'devicon-swift-plain',
+  Kotlin: 'devicon-kotlin-plain',
+  React: 'devicon-react-original',
+  Vue: 'devicon-vuejs-plain',
+  Angular: 'devicon-angularjs-plain',
+  Node: 'devicon-nodejs-plain',
+};
+
 export default function ProjectDetails() {
   const { name } = useParams<{ name: string }>();
   const [repo, setRepo] = useState<any>(null);
@@ -14,7 +33,9 @@ export default function ProjectDetails() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const octokit = new Octokit();
+        const octokit = new Octokit({
+          auth: import.meta.env.VITE_GITHUB_TOKEN,
+        });
         const [repoResponse, { data: details }] = await Promise.all([
           octokit.repos.get({
             owner: 'FlorentinHub',
@@ -105,7 +126,15 @@ export default function ProjectDetails() {
                       key={lang}
                       className="flex items-center bg-white/10 px-4 py-2 rounded"
                     >
-                      <i className={`devicon-${lang.toLowerCase()}-plain text-2xl mr-2`}></i>
+                      {languageIcons[lang] ? (
+                        <i
+                          className={`${languageIcons[lang]} text-2xl mr-2`}
+                        ></i>
+                      ) : (
+                        <i
+                          className={`devicon-${lang.toLowerCase()}-plain text-2xl mr-2`}
+                        ></i>
+                      )}
                       {lang}
                     </div>
                   ))}
