@@ -52,6 +52,7 @@ export default function AdminPanel() {
     fetchData();
   }, []);
 
+<<<<<<< Updated upstream
   const handleRepoSelect = async (repoName: string) => {
     try {
       const octokit = new Octokit({
@@ -110,6 +111,45 @@ export default function AdminPanel() {
         .from('project_details')
         .insert(newProject);
 
+=======
+  const handleRepoSelect = (repoName: string) => {
+    setSelectedRepo(repoName);
+    setEditingDetails(projectDetails[repoName] || {
+      repo_name: repoName,
+      images: [],
+      languages: [],
+      isVisible: true
+    });
+  };
+
+  const handleSave = async (newProject: ProjectDetails) => {
+    const { data: existing, error: existingError } = await supabase
+      .from('project_details')
+      .select('id')
+      .eq('repo_name', newProject.repo_name)
+      .single();
+
+    if (existing) {
+      const { data, error } = await supabase
+        .from('project_details')
+        .update({
+          images: newProject.images,
+          languages: newProject.languages,
+          isVisible: newProject.isVisible
+        })
+        .eq('repo_name', newProject.repo_name);
+
+      if (error) {
+        console.error('Erreur lors de la mise à jour :', error);
+      } else {
+        console.log('Projet mis à jour :', data);
+      }
+    } else {
+      const { data, error } = await supabase
+        .from('project_details')
+        .insert(newProject);
+
+>>>>>>> Stashed changes
       if (error) {
         console.error('Erreur lors de la sauvegarde :', error);
       } else {
@@ -192,8 +232,13 @@ export default function AdminPanel() {
                   onClick={() => handleRepoSelect(repo.name)}
                   className={`w-full text-left p-3 rounded ${selectedRepo === repo.name
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                       ? 'bg-primary text-white'
                       : 'hover:bg-white/10'
+=======
+                    ? 'bg-primary text-white'
+                    : 'hover:bg-white/10'
+>>>>>>> Stashed changes
 =======
                     ? 'bg-primary text-white'
                     : 'hover:bg-white/10'
@@ -220,8 +265,13 @@ export default function AdminPanel() {
                     onClick={handleToggleVisibility}
                     className={`flex items-center px-4 py-2 rounded ${editingDetails.isVisible
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                         ? 'bg-green-500 hover:bg-green-600'
                         : 'bg-red-500 hover:bg-red-600'
+=======
+                      ? 'bg-green-500 hover:bg-green-600'
+                      : 'bg-red-500 hover:bg-red-600'
+>>>>>>> Stashed changes
 =======
                       ? 'bg-green-500 hover:bg-green-600'
                       : 'bg-red-500 hover:bg-red-600'
