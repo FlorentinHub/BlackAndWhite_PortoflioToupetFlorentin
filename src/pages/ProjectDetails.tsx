@@ -5,6 +5,7 @@ import { ArrowLeft, Star, GitFork, Code } from 'lucide-react';
 import { Octokit } from '@octokit/rest';
 import { supabase } from '../lib/supabase';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+<<<<<<< Updated upstream
 
 const languageIcons: Record<string, string> = {
   JavaScript: 'devicon-javascript-plain',
@@ -24,6 +25,8 @@ const languageIcons: Record<string, string> = {
   Angular: 'devicon-angularjs-plain',
   Node: 'devicon-nodejs-plain',
 };
+=======
+>>>>>>> Stashed changes
 
 export default function ProjectDetails() {
   const { name } = useParams<{ name: string }>();
