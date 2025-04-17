@@ -22,9 +22,7 @@ export default function AdminPanel() {
     const fetchData = async () => {
       try {
         // Fetch GitHub repos
-        const octokit = new Octokit({
-          auth: import.meta.env.VITE_GITHUB_TOKEN,
-        });
+        const octokit = new Octokit();
         const repoResponse = await octokit.repos.listForUser({
           username: 'FlorentinHub',
           sort: 'updated'
@@ -52,44 +50,50 @@ export default function AdminPanel() {
     fetchData();
   }, []);
 
-  const handleRepoSelect = async (repoName: string) => {
-    try {
-      const octokit = new Octokit({
-        auth: import.meta.env.VITE_GITHUB_TOKEN,
-      });
-      const { data: languagesData } = await octokit.repos.listLanguages({
-        owner: 'FlorentinHub',
-        repo: repoName
-      });
+  const handleRepoSelect = (repoName: string) => {
+    setSelectedRepo(repoName);
+    setEditingDetails(projectDetails[repoName] || {
+      repo_name: repoName,
+      images: [],
+      languages: [],
+      isVisible: true
+    });
+  };
 
-      const githubLanguages = Object.keys(languagesData);
+  const handleSave = async (newProject: ProjectDetails) => {
+    const { data: existing, error: existingError } = await supabase
+      .from('project_details')
+      .select('id')
+      .eq('repo_name', newProject.repo_name)
+      .single();
 
-      // Récupérer les infos Supabase si dispo
-      const details = projectDetails[repoName];
+    if (existing) {
+      const { data, error } = await supabase
+        .from('project_details')
+        .update({
+          images: newProject.images,
+          languages: newProject.languages,
+          isVisible: newProject.isVisible
+        })
+        .eq('repo_name', newProject.repo_name);
 
-      setSelectedRepo(repoName);
-      setEditingDetails({
-        repo_name: repoName,
-        images: details?.images || [],
-        languages: githubLanguages, // On écrase ici avec GitHub
-        isVisible: details?.isVisible ?? true
-      });
-    } catch (error) {
-      console.error('Erreur lors du chargement des langages GitHub :', error);
+      if (error) {
+        console.error('Erreur lors de la mise à jour :', error);
+      } else {
+        console.log('Projet mis à jour :', data);
+      }
+    } else {
+      const { data, error } = await supabase
+        .from('project_details')
+        .insert(newProject);
+
+      if (error) {
+        console.error('Erreur lors de la sauvegarde :', error);
+      } else {
+        console.log('Nouveau projet ajouté :', data);
+      }
     }
   };
-  const handleSave = async () => {
-    if (!editingDetails) return;
-
-    try {
-      const { error } = await supabase
-        .from('project_details')
-        .upsert({
-          repo_name: editingDetails.repo_name,
-          images: editingDetails.images,
-          languages: editingDetails.languages,
-          isVisible: editingDetails.isVisible
-        });
 
       if (error) throw error;
 
@@ -174,10 +178,11 @@ export default function AdminPanel() {
                 <button
                   key={repo.name}
                   onClick={() => handleRepoSelect(repo.name)}
-                  className={`w-full text-left p-3 rounded ${selectedRepo === repo.name
+                  className={`w-full text-left p-3 rounded ${
+                    selectedRepo === repo.name
                       ? 'bg-primary text-white'
                       : 'hover:bg-white/10'
-                    }`}
+                  }`}
                 >
                   <div className="flex items-center justify-between">
                     <span>{repo.name}</span>
@@ -197,10 +202,11 @@ export default function AdminPanel() {
                 <div className="flex gap-4">
                   <button
                     onClick={handleToggleVisibility}
-                    className={`flex items-center px-4 py-2 rounded ${editingDetails.isVisible
+                    className={`flex items-center px-4 py-2 rounded ${
+                      editingDetails.isVisible
                         ? 'bg-green-500 hover:bg-green-600'
                         : 'bg-red-500 hover:bg-red-600'
-                      } text-white`}
+                    } text-white`}
                   >
                     {editingDetails.isVisible ? (
                       <>
@@ -215,7 +221,7 @@ export default function AdminPanel() {
                     )}
                   </button>
                   <button
-                    onClick={handleSave}
+                    onClick={() => handleSave(editingDetails)}
                     className="flex items-center bg-primary text-white px-4 py-2 rounded hover:bg-primary/90"
                   >
                     <Save className="w-5 h-5 mr-2" />
