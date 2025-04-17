@@ -14,22 +14,24 @@ interface ProjectDetails {
 }
 
 const languageIcons: Record<string, string> = {
-  JavaScript: 'devicon-javascript-plain',
-  TypeScript: 'devicon-typescript-plain',
-  Python: 'devicon-python-plain',
-  Java: 'devicon-java-plain',
-  Ruby: 'devicon-ruby-plain',
-  PHP: 'devicon-php-plain',
-  'C++': 'devicon-cplusplus-plain',
-  'C#': 'devicon-csharp-plain',
-  Go: 'devicon-go-plain',
-  Rust: 'devicon-rust-plain',
-  Swift: 'devicon-swift-plain',
-  Kotlin: 'devicon-kotlin-plain',
-  React: 'devicon-react-original',
-  Vue: 'devicon-vuejs-plain',
-  Angular: 'devicon-angularjs-plain',
-  Node: 'devicon-nodejs-plain',
+  JavaScript: 'devicon-javascript-plain colored',
+  TypeScript: 'devicon-typescript-plain colored',
+  Python: 'devicon-python-plain colored',
+  Java: 'devicon-java-plain colored',
+  Ruby: 'devicon-ruby-plain colored',
+  PHP: 'devicon-php-plain colored',
+  'C++': 'devicon-cplusplus-plain colored',
+  'C#': 'devicon-csharp-plain colored',
+  Go: 'devicon-go-plain colored',
+  Rust: 'devicon-rust-plain colored',
+  Swift: 'devicon-swift-plain colored',
+  Kotlin: 'devicon-kotlin-plain colored',
+  React: 'devicon-react-original colored',
+  Vue: 'devicon-vuejs-plain colored',
+  Angular: 'devicon-angularjs-plain colored',
+  Node: 'devicon-nodejs-plain colored',
+};
+
 };
 
 export default function Home() {
