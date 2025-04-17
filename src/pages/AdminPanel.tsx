@@ -60,18 +60,40 @@ export default function AdminPanel() {
     });
   };
 
-  const handleSave = async () => {
-    if (!editingDetails) return;
+  const handleSave = async (newProject: ProjectDetails) => {
+    const { data: existing, error: existingError } = await supabase
+      .from('project_details')
+      .select('id')
+      .eq('repo_name', newProject.repo_name)
+      .single();
 
-    try {
-      const { error } = await supabase
+    if (existing) {
+      const { data, error } = await supabase
         .from('project_details')
-        .upsert({
-          repo_name: editingDetails.repo_name,
-          images: editingDetails.images,
-          languages: editingDetails.languages,
-          isVisible: editingDetails.isVisible
-        });
+        .update({
+          images: newProject.images,
+          languages: newProject.languages,
+          isVisible: newProject.isVisible
+        })
+        .eq('repo_name', newProject.repo_name);
+
+      if (error) {
+        console.error('Erreur lors de la mise à jour :', error);
+      } else {
+        console.log('Projet mis à jour :', data);
+      }
+    } else {
+      const { data, error } = await supabase
+        .from('project_details')
+        .insert(newProject);
+
+      if (error) {
+        console.error('Erreur lors de la sauvegarde :', error);
+      } else {
+        console.log('Nouveau projet ajouté :', data);
+      }
+    }
+  };
 
       if (error) throw error;
 
@@ -137,7 +159,7 @@ export default function AdminPanel() {
   }
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="container mx-auto px-4 py-12"
@@ -199,7 +221,7 @@ export default function AdminPanel() {
                     )}
                   </button>
                   <button
-                    onClick={handleSave}
+                    onClick={() => handleSave(editingDetails)}
                     className="flex items-center bg-primary text-white px-4 py-2 rounded hover:bg-primary/90"
                   >
                     <Save className="w-5 h-5 mr-2" />
