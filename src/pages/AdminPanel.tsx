@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Settings, Save, Plus, Trash2, Eye, EyeOff } from 'lucide-react';
+import { Settings, Save, Plus, Trash2, Eye, EyeOff, Camera } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { Octokit } from '@octokit/rest';
 
@@ -17,6 +17,7 @@ export default function AdminPanel() {
   const [loading, setLoading] = useState(true);
   const [selectedRepo, setSelectedRepo] = useState<string | null>(null);
   const [editingDetails, setEditingDetails] = useState<ProjectDetails | null>(null);
+  const [capturingScreenshot, setCapturingScreenshot] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -91,14 +92,35 @@ export default function AdminPanel() {
           isVisible: editingDetails.isVisible
         });
 
-      if (error) throw error;
+  const handleCaptureScreenshot = async () => {
+    if (!selectedRepo || !editingDetails) return;
 
-      setProjectDetails({
-        ...projectDetails,
-        [editingDetails.repo_name]: editingDetails
+    setCapturingScreenshot(true);
+    try {
+      const selectedRepoData = repos.find(repo => repo.name === selectedRepo);
+      const deployedUrl = selectedRepoData?.homepage || `https://florentinhub.github.io/${selectedRepo}`;
+
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/capture-screenshot`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ repoUrl: deployedUrl }),
       });
+
+      const data = await response.json();
+
+      if (data.url) {
+        setEditingDetails({
+          ...editingDetails,
+          images: [...editingDetails.images, data.url],
+        });
+      }
     } catch (error) {
-      console.error('Error saving project details:', error);
+      console.error('Error capturing screenshot:', error);
+    } finally {
+      setCapturingScreenshot(false);
     }
   };
 
@@ -228,13 +250,23 @@ export default function AdminPanel() {
                 <div>
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-xl font-semibold">Images</h3>
-                    <button
-                      onClick={handleAddImage}
-                      className="flex items-center text-primary hover:text-primary/90"
-                    >
-                      <Plus className="w-5 h-5 mr-1" />
-                      Add Image
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={handleCaptureScreenshot}
+                        disabled={capturingScreenshot}
+                        className="flex items-center bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 disabled:opacity-50"
+                      >
+                        <Camera className="w-5 h-5 mr-2" />
+                        {capturingScreenshot ? 'Capturing...' : 'Capture Screenshot'}
+                      </button>
+                      <button
+                        onClick={handleAddImage}
+                        className="flex items-center text-primary hover:text-primary/90"
+                      >
+                        <Plus className="w-5 h-5 mr-1" />
+                        Add Image
+                      </button>
+                    </div>
                   </div>
                   {editingDetails.images.map((image, index) => (
                     <div key={index} className="flex items-center mb-2">
